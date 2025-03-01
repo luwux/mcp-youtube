@@ -48,6 +48,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     throw new Error(`Unknown tool: ${request.params.name}`);
   }
 
+  let cookieBrowserName = process.env.EXTRACT_COOKIE_FROM_BROWSER_NAME
+  if (!["chrome"].includes(cookieBrowserName!.toLowerCase())) {
+    throw new Error("Unsupported cookie browser")
+  }
+
   try {
     const { url } = request.params.arguments as { url: string };
 
@@ -64,6 +69,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         "srt",
         "--convert-subs",
         "srt",
+        "--cookies-from-browser",
+        `${process.env.EXTRACT_COOKIE_FROM_BROWSER_NAME}`,
         url,
       ],
       { cwd: tempDir, detached: true }
